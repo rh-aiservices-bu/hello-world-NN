@@ -34,7 +34,7 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
         10/10 - loss: 0.0902 - accuracy: 0.9729 - val_loss: 0.0871 - val_accuracy: 0.9768
         ```
 
-        ![Training output showing loss and accuracy](../assets/training-output.png)
+   ![Training output showing loss and accuracy](../assets/training-output.png)
 
    - The final cell saves two model files:
      - `mnist_model.pt` — PyTorch state dict (for reloading/retraining)
