@@ -15,13 +15,11 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
 ## Quick path (attendee)
 1. In Jupyter, open `mnist_sequential.ipynb`.
 
-    ![Opening the notebook in JupyterLab](../assets/placeholder-open-notebook.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the notebook open in JupyterLab -->
+    ![Opening the notebook in JupyterLab](../assets/open-notebook.png)
 
 2. Run the notebook top-to-bottom (**Run → Run All Cells** or use the run button for each cell).
 
-    ![Running all cells in the notebook](../assets/placeholder-run-all-cells.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the Run menu or toolbar run button -->
+    ![Running all cells in the notebook](../assets/run-all-cells.png)
 
     !!! note "First run downloads MNIST data"
         The first cell that loads the dataset will download ~12 MB of MNIST data from the internet. This requires outbound access from the Workbench. The download happens once and is cached in a `./data` directory.
@@ -36,15 +34,13 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
         10/10 - loss: 0.0902 - accuracy: 0.9729 - val_loss: 0.0871 - val_accuracy: 0.9768
         ```
 
-        ![Training output showing loss and accuracy](../assets/placeholder-training-output.png)
-        <!-- TODO (workshop author): Replace with a screenshot of the training cell output -->
+        ![Training output showing loss and accuracy](../assets/training-output.png)
 
    - The final cell saves two model files:
      - `mnist_model.pt` — PyTorch state dict (for reloading/retraining)
      - `mnist_model.onnx` — ONNX export (**this is what you will deploy for serving**)
 
-        ![Saved model file visible in the file browser](../assets/placeholder-saved-model-file.png)
-        <!-- TODO (workshop author): Replace with a screenshot of the file browser showing mnist_model.onnx -->
+        ![Saved model file visible in the file browser](../assets/saved-model-file.png)
 
 ## What "success" looks like
 - Validation accuracy reaches **~97%** after 10 epochs.

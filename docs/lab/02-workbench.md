@@ -9,18 +9,15 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 ## Procedure (attendee)
 1. In **OpenShift AI**, create or select your project.
 
-    ![Creating or selecting a project in OpenShift AI](../assets/placeholder-select-project.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the OpenShift AI project selector / Data Science Projects page -->
+    ![Creating or selecting a project in OpenShift AI](../assets/select-project.png)
 
 2. Go to **Workbenches → Create workbench**.
 
-    ![Create workbench button](../assets/placeholder-create-workbench.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the Workbenches tab showing the Create button -->
+    ![Create workbench button](../assets/create-workbench.png)
 
 3. For the notebook image, select the **PyTorch** image from the list of standard images provided by OpenShift AI.
 
-    ![Selecting the PyTorch notebook image](../assets/placeholder-select-pytorch-image.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the image selector dropdown with the PyTorch option highlighted -->
+    ![Selecting the PyTorch notebook image](../assets/select-pytorch-image.png)
 
 4. Name it `mnist-workbench`.
 
@@ -31,8 +28,7 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 7. In JupyterLab, clone the workshop repo using the GUI:
     - Click **Git → Clone a Repository** from the top menu bar.
 
-        ![Git menu — Clone a Repository](../assets/placeholder-git-clone-menu.png)
-        <!-- TODO (workshop author): Replace with a screenshot of the JupyterLab Git menu open with "Clone a Repository" highlighted -->
+        ![Git menu — Clone a Repository](../assets/git-clone-menu.png)
 
     - Paste the repository URL:
 
@@ -42,15 +38,13 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 
     - Click **Clone**.
 
-        ![Git clone dialog with repo URL](../assets/placeholder-git-clone-dialog.png)
-        <!-- TODO (workshop author): Replace with a screenshot of the clone dialog with the URL pasted in -->
+        ![Git clone dialog with repo URL](../assets/git-clone-dialog.png)
 
 8. In the Jupyter file browser, navigate into the cloned repo folder. You should see:
     - `mnist_sequential.ipynb` — the training notebook
     - `img/` — images used by the notebook
 
-    ![Cloned repo visible in the JupyterLab file browser](../assets/placeholder-file-browser-cloned.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the file browser showing the notebook and img/ folder -->
+    ![Cloned repo visible in the JupyterLab file browser](../assets/file-browser-cloned.png)
 
 ## Success criteria
 - Jupyter opens successfully using the default PyTorch image.

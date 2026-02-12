@@ -25,8 +25,7 @@ mnist_model.onnx (in storage as 1/model.onnx)
 
 In JupyterLab, locate the `mnist_model.onnx` file in the file browser. Right-click the file and select **Download** to save it to your laptop.
 
-![Downloading the model from JupyterLab](../assets/placeholder-download-model.png)
-<!-- TODO (workshop author): Replace with a screenshot of right-clicking mnist_model.onnx and selecting Download in JupyterLab -->
+![Downloading the model from JupyterLab](../assets/download-model.png)
 
 You will upload this file to cluster storage in the next step.
 
@@ -147,13 +146,11 @@ Now use the dashboard UI to deploy the model.
 
 1. Open the **OpenShift AI dashboard** in your browser. You can find the URL from the OpenShift console's application launcher (grid icon in the top-right), or ask your workshop staff for the link.
 
-    ![OpenShift AI dashboard link in the application launcher](../assets/placeholder-dashboard-launcher.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the OpenShift console app launcher showing the OpenShift AI link -->
+    ![OpenShift AI dashboard link in the application launcher](../assets/dashboard-launcher.png)
 
 2. In the left menu, click **Data Science Projects**. Find and click your project name (`<PROJECT_NAME>`).
 
-    ![Selecting your Data Science Project](../assets/placeholder-select-ds-project.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the Data Science Projects list with the project highlighted -->
+    ![Selecting your Data Science Project](../assets/select-ds-project.png)
 
 3. Click the **Models** tab. You should see the single-model serving platform available. Click **Deploy model**.
 
