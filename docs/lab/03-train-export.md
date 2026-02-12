@@ -25,15 +25,6 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
         The first cell that loads the dataset will download ~12 MB of MNIST data from the internet. This requires outbound access from the Workbench. The download happens once and is cached in a `./data` directory.
 
 3. Confirm you see:
-   - Training progress output showing loss and accuracy improving across 10 epochs:
-
-        ```
-        1/10 - loss: 0.4162 - accuracy: 0.8780 - val_loss: 0.1724 - val_accuracy: 0.9488
-        2/10 - loss: 0.2026 - accuracy: 0.9405 - val_loss: 0.1285 - val_accuracy: 0.9633
-        ...
-        10/10 - loss: 0.0902 - accuracy: 0.9729 - val_loss: 0.0871 - val_accuracy: 0.9768
-        ```
-
    ![Training output showing loss and accuracy](../assets/training-output.png)
 
    - The final cell saves two model files:
