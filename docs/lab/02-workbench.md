@@ -50,9 +50,6 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 - Jupyter opens successfully using the default PyTorch image.
 - The repo is cloned and you can see `mnist_sequential.ipynb` in the file browser.
 
-    ![Workbench ready with notebook loaded](../assets/placeholder-workbench-ready.png)
-    <!-- TODO (workshop author): Replace with a screenshot showing the Workbench in a ready/successful state -->
-
 ## Troubleshooting
 - **Workbench fails to start**: Check that you selected the correct PyTorch image from the standard images list. Confirm your project has enough resource quota.
 - **Git clone fails in the UI**: If you see a network or authentication error, the sandbox may restrict outbound access. Ask your workshop staff for an alternative way to get the notebook files (e.g., direct file upload or a pre-populated PVC).
