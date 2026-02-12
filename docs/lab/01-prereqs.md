@@ -6,7 +6,7 @@
 - Permission to **deploy a model** on the model-serving platform in that project.
 - **Outbound internet access** from the Workbench (needed to clone the repo and download MNIST data).
 
-![OpenShift AI dashboard landing page](oai-dashboard.png)
+![OpenShift AI dashboard landing page](../assets/oai-dashboard.png)
 
 ## Tools
 - **`oc` CLI** — logged in to the cluster. You will use `oc` to upload the model to storage, create the serving runtime, and (optionally) create a Route.
