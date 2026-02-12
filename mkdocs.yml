@@ -1,0 +1,47 @@
+site_name: OpenShift AI 3.x Workbench → PyTorch Serving Workshop
+site_description: CPU-friendly OpenShift AI 3.x workshop showroom (Workbench training + PyTorch model serving)
+site_url: https://<GITHUB_ORG>.github.io/<REPO_NAME>/
+repo_url: https://github.com/<GITHUB_ORG>/<REPO_NAME>
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+    - content.action.edit
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Workshop:
+      - Overview: lab/00-overview.md
+      - Prerequisites: lab/01-prereqs.md
+      - Step 1 - Launch Workbench: lab/02-workbench.md
+      - Step 2 - Train & Export ONNX: lab/03-train-export.md
+      - Step 3 - Deploy with OVMS: lab/04-serve.md
+      - Step 4 - Test Inference: lab/05-test.md
+      - Optional - External Curl Test: lab/06-external-test.md
+  - Troubleshooting: troubleshooting.md
+  - Reference:
+      - Repo assets: reference/repo-assets.md
+      - Glossary: reference/glossary.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/<GITHUB_ORG>/<REPO_NAME>
