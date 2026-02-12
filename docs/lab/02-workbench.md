@@ -37,15 +37,13 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
     - Paste the repository URL:
 
         ```
-        <GIT_REPO_URL>
+        https://github.com/rh-aiservices-bu/hello-world-NN
         ```
 
     - Click **Clone**.
 
         ![Git clone dialog with repo URL](../assets/placeholder-git-clone-dialog.png)
         <!-- TODO (workshop author): Replace with a screenshot of the clone dialog with the URL pasted in -->
-
-    > TODO (workshop author): Replace `<GIT_REPO_URL>` with the actual repository URL.
 
 8. In the Jupyter file browser, navigate into the cloned repo folder. You should see:
     - `mnist_sequential.ipynb` — the training notebook
@@ -64,4 +62,4 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 ## Troubleshooting
 - **Workbench fails to start**: Check that you selected the correct PyTorch image from the standard images list. Confirm your project has enough resource quota.
 - **Git clone fails in the UI**: If you see a network or authentication error, the sandbox may restrict outbound access. Ask your workshop staff for an alternative way to get the notebook files (e.g., direct file upload or a pre-populated PVC).
-- **No "Git" menu in JupyterLab**: The Git extension should be pre-installed in the default PyTorch image. If it is missing, you can use **File → New → Terminal** and run `git clone <GIT_REPO_URL>` as a fallback.
+- **No "Git" menu in JupyterLab**: The Git extension should be pre-installed in the default PyTorch image. If it is missing, you can use **File → New → Terminal** and run `git clone https://github.com/rh-aiservices-bu/hello-world-NN` as a fallback.
