@@ -74,6 +74,8 @@ kind: Pod
 metadata:
   name: model-upload
 spec:
+  securityContext:
+    fsGroup: 0
   containers:
   - name: upload
     image: registry.access.redhat.com/ubi9/ubi:latest
@@ -88,6 +90,9 @@ spec:
   restartPolicy: Never
 EOF
 ```
+
+!!! info "Why `fsGroup: 0`?"
+    PVC volumes are initially root-owned, but pods in OpenShift run as a random non-root UID. Setting `fsGroup: 0` tells Kubernetes to make the volume group-writable, so the pod can create directories and files without needing root privileges.
 
 Wait for the pod, copy the model, then clean up:
 
