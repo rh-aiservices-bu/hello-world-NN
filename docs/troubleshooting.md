@@ -24,7 +24,22 @@ You may see: `DeprecationWarning: You are using the legacy TorchScript-based ONN
 ## Model serving fails to start
 
 ### Helper pod fails with SCC / security context error
-If you see an error like `pods "model-upload" is forbidden: unable to validate against any security context constraint`, the sandbox may have restrictive security policies. The helper pod does not require any special privileges — make sure you are not using an init container with `runAsUser: 0`. The pod spec in the lab instructions should work with the default `restricted` SCC.
+If you see an error like `pods "model-upload" is forbidden: unable to validate against any security context constraint`, the sandbox has restrictive security policies. Common causes:
+
+- **`fsGroup: 0`** — sandbox SCCs restrict `fsGroup` to a project-specific range. Remove `fsGroup` entirely; OpenShift automatically assigns a valid group that makes the PVC writable.
+- **`runAsUser: 0`** — running as root is not allowed. The helper pod does not need root.
+- **Init containers with privileged settings** — remove any init containers with `securityContext.runAsUser: 0`.
+
+The pod spec in the lab instructions works with the default `restricted-v2` SCC without any special security settings.
+
+### Template processing forbidden
+If `oc process kserve-ovms -n redhat-ods-applications` fails with a permissions error, use the local processing workaround:
+
+```bash
+oc get template kserve-ovms -n redhat-ods-applications -o yaml | \
+  oc process -f - --local | \
+  oc apply -n <PROJECT_NAME> -f -
+```
 
 ### Pod stuck in ContainerCreating
 - **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench or the upload pod). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Delete the upload pod first: `oc delete pod model-upload -n <PROJECT_NAME>`.

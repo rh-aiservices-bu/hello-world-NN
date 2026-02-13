@@ -10,14 +10,14 @@ model.onnx (exported by the notebook)
         └─> Deploy model through the OpenShift AI dashboard
               └─> OVMS runtime loads the model via KServe
                     └─> Two services are created:
-                          ├─> mnist-onnx-predictor (headless, port 80 → 8888)
-                          └─> mnist-onnx-metrics   (ClusterIP, port 8888)
+                          ├─> mnist-onnx-predictor (port 80 → 8888)
+                          └─> mnist-onnx-metrics   (port 8888)
                                 └─> Route exposes port 8888 externally
 ```
 
 - Your **ONNX model artifact** needs to be in a location the serving runtime can access (PVC or S3-compatible object storage).
 - The **OVMS serving runtime** loads the model and exposes a **v2 inference API** on port **8888**.
-- KServe creates **two services**: a headless predictor service and a metrics service. External Routes should target the **metrics service**.
+- KServe creates **two services**: a predictor service and a metrics service. Use the **metrics service** for Routes and port-forwarding.
 
 ## Procedure (attendee)
 
@@ -74,8 +74,6 @@ kind: Pod
 metadata:
   name: model-upload
 spec:
-  securityContext:
-    fsGroup: 0
   containers:
   - name: upload
     image: registry.access.redhat.com/ubi9/ubi:latest
@@ -90,9 +88,6 @@ spec:
   restartPolicy: Never
 EOF
 ```
-
-!!! info "Why `fsGroup: 0`?"
-    PVC volumes are initially root-owned, but pods in OpenShift run as a random non-root UID. Setting `fsGroup: 0` tells Kubernetes to make the volume group-writable, so the pod can create directories and files without needing root privileges.
 
 Wait for the pod, copy the model, then clean up:
 
@@ -118,9 +113,13 @@ oc delete pod model-upload -n <PROJECT_NAME>
 Before you can deploy the model through the dashboard, you need an OVMS serving runtime in your project. Create it from the cluster template:
 
 ```bash
-oc process kserve-ovms -n redhat-ods-applications | \
+oc get template kserve-ovms -n redhat-ods-applications -o yaml | \
+  oc process -f - --local | \
   oc apply -n <PROJECT_NAME> -f -
 ```
+
+!!! note "Why the extra step?"
+    In sandbox environments, you may not have permission to process templates directly in the `redhat-ods-applications` namespace. The command above exports the template locally first, then processes it with `--local` to avoid that permission issue.
 
 Verify it was created:
 
@@ -226,15 +225,8 @@ oc create route edge mnist-onnx-inference \
   -n <PROJECT_NAME>
 ```
 
-!!! warning "Why `mnist-onnx-metrics` and not `mnist-onnx-predictor`?"
-    KServe creates two services:
-
-    | Service | Type | Port mapping |
-    |---------|------|-------------|
-    | `mnist-onnx-predictor` | Headless (ClusterIP: None) | 80 → 8888 |
-    | `mnist-onnx-metrics` | ClusterIP | 8888 → 8888 |
-
-    The predictor service is headless, which means Routes and port-forwards don't work reliably against it. Always use the **metrics service** for external access and port-forwarding.
+!!! info "Why `mnist-onnx-metrics`?"
+    KServe creates two services. The **metrics service** exposes port **8888** directly (the OVMS REST API port) and is the most reliable target for Routes and port-forwarding across different cluster configurations.
 
 Get the Route URL:
 
@@ -250,7 +242,7 @@ oc get route mnist-onnx-inference -n <PROJECT_NAME> -o jsonpath='{.spec.host}'
 - The Route exists and returns the model metadata when accessed.
 
 ## Common issues
-- **Helper pod fails with SCC error**: if the `model-upload` pod is rejected with a security context constraint error, verify you are using the pod spec from these instructions (no `runAsUser: 0` or privileged settings).
+- **Helper pod fails with SCC error**: if the `model-upload` pod is rejected with a security context constraint error, verify you are not using `runAsUser: 0`, `fsGroup: 0`, or any privileged settings. The pod spec in these instructions works with the default `restricted-v2` SCC.
 - **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to the upload pod. Delete it first: `oc delete pod model-upload -n <PROJECT_NAME>`.
 - **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists on the PVC.
 - **`lost+found` warning in logs**: harmless — PVC formatting creates this directory. OVMS logs a warning but continues normally.
