@@ -18,8 +18,8 @@ You will train a simple **image classifier** (MNIST digits) inside an OpenShift 
 ```text
 Default PyTorch notebook image + cloned repo
   └─> Jupyter notebook trains model on CPU (~2 min)
-        └─> mnist_model.onnx exported by notebook
-              └─> Download model, upload to PVC via oc CLI (renamed to 1/model.onnx)
+        └─> model.onnx exported by notebook
+              └─> Download model, upload to PVC via oc CLI (placed in 1/model.onnx)
                     └─> Deploy model through OpenShift AI dashboard
                           └─> OVMS serving runtime loads model (<1s)
                                 └─> KServe v2 REST API on port 8888
@@ -27,5 +27,5 @@ Default PyTorch notebook image + cloned repo
                                             └─> curl / Python client test
 ```
 
-!!! warning "Key detail: file renaming"
-    The notebook saves the file as `mnist_model.onnx`, but OVMS expects the file to be named exactly **`model.onnx`** inside a version directory. You must rename it when uploading to storage.
+!!! info "Key detail: directory structure"
+    The notebook exports the model as `model.onnx`. OVMS expects this file inside a **numbered version directory** (`1/model.onnx`) on the PVC. The upload step handles placing it in the correct location.

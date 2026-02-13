@@ -4,7 +4,7 @@
 Run the provided `mnist_sequential.ipynb` notebook to:
 - load the MNIST dataset
 - train a small neural network on CPU
-- export the model to **ONNX format** (`mnist_model.onnx`) for serving
+- export the model to **ONNX format** (`model.onnx`) for serving
 
 ## Why ONNX?
 ONNX (Open Neural Network Exchange) is a portable model format supported by the **OpenVINO Model Server (OVMS)** runtime in OpenShift AI. Exporting to ONNX means your model can be served without needing the original PyTorch code.
@@ -29,22 +29,19 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
 
    - The final cell saves two model files:
      - `mnist_model.pt` — PyTorch state dict (for reloading/retraining)
-     - `mnist_model.onnx` — ONNX export (**this is what you will deploy for serving**)
+     - `model.onnx` — ONNX export (**this is what you will deploy for serving**)
 
         ![Saved model file visible in the file browser](../assets/saved-model-file.png)
 
 ## What "success" looks like
 - Validation accuracy reaches **~97%** after 10 epochs.
-- Both `mnist_model.pt` and `mnist_model.onnx` appear in the file browser.
+- Both `mnist_model.pt` and `model.onnx` appear in the file browser.
 - The model is **~430 KB** — small enough that no GPU is needed.
-
-!!! warning "Remember this for the next step"
-    The notebook saves the file as **`mnist_model.onnx`**, but OVMS expects the file to be named **`model.onnx`** inside a version directory (`1/`). You will rename it when uploading to storage in the next step.
 
 ## If you're curious: what is happening
 - The model is a simple feedforward network: 784 → 128 → 64 → 10 (**109,386 parameters**).
 - Dropout (30%) prevents overfitting on this small dataset.
-- The ONNX export uses `torch.onnx.export()` with **opset 13** and dynamic batch size, meaning the served model can handle any batch size at inference time.
+- The ONNX export uses `torch.onnx.export()` with **opset 13** and dynamic batch size, meaning the served model can handle any batch size at inference time. The file is named `model.onnx` because OVMS requires this exact filename.
 - The model input is a single-channel 28x28 grayscale image (shape `[batch, 1, 28, 28]`, values 0.0–1.0).
 - The model output is 10 raw logits (shape `[batch, 10]`). The predicted digit is the index with the highest value.
 

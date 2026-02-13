@@ -8,7 +8,7 @@
 
 ## Model serving details (validated)
 - **Model format**: ONNX (exported from PyTorch via `torch.onnx.export`, opset 13)
-- **Model file**: `mnist_model.onnx` (~430 KB)
+- **Model file**: `model.onnx` (~430 KB)
 - **Serving runtime**: OpenVINO Model Server (OVMS) — template `kserve-ovms`
 - **Input**: `float32` tensor, shape `[batch, 1, 28, 28]`, name `input`
 - **Output**: `float32` tensor, shape `[batch, 10]`, name `output` (raw logits, argmax = predicted digit)

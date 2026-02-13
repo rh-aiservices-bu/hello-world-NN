@@ -7,19 +7,25 @@ Start a Jupyter Workbench using the **default PyTorch notebook image** provided 
 OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) that are ready to use. This avoids the need to build or import a custom image, which would require RBAC permissions most sandbox users do not have.
 
 ## Procedure (attendee)
-1. In **OpenShift AI**, create or select your project.
+1. In **OpenShift AI**, select your project.
 
-    ![Creating or selecting a project in OpenShift AI](../assets/select-project.png)
+    ![Selecting a project in OpenShift AI](../assets/select-project.png)
+
+    !!! note "Sandbox projects"
+        In most sandbox environments, you cannot create your own project — one has been pre-assigned to you. Select the project that matches your assigned namespace. If you are unsure which project to use, ask your workshop staff.
 
 2. Go to **Workbenches → Create workbench**.
 
     ![Create workbench button](../assets/create-workbench.png)
 
-3. For the notebook image, select the **PyTorch** image from the list of standard images provided by OpenShift AI.
+3. Name it `mnist-workbench`.
+
+4. For the notebook image, select **PyTorch | CUDA | 3.12** from the list of standard images provided by OpenShift AI.
 
     ![Selecting the PyTorch notebook image](../assets/select-pytorch-image.png)
 
-4. Name it `mnist-workbench`.
+    !!! note "Which PyTorch image?"
+        There are several PyTorch images available. Choose the one labeled **PyTorch | CUDA | 3.12**. Despite the CUDA label, it works fine on CPU — CUDA support is optional and unused in this workshop.
 
 5. For container size, the defaults are fine. The model is small (109K parameters) and trains comfortably on CPU.
 

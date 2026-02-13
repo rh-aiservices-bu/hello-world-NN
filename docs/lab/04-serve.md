@@ -5,8 +5,8 @@ Upload your trained MNIST model to cluster storage, then deploy it through the *
 
 ## Mental model
 ```text
-mnist_model.onnx (in storage as 1/model.onnx)
-  └─> Upload to PVC via oc CLI
+model.onnx (exported by the notebook)
+  └─> Upload to PVC under 1/model.onnx via oc CLI
         └─> Deploy model through the OpenShift AI dashboard
               └─> OVMS runtime loads the model via KServe
                     └─> Two services are created:
@@ -23,20 +23,20 @@ mnist_model.onnx (in storage as 1/model.onnx)
 
 ### 1. Download the model from the Workbench
 
-In JupyterLab, locate the `mnist_model.onnx` file in the file browser. Right-click the file and select **Download** to save it to your laptop.
+In JupyterLab, locate the `model.onnx` file in the file browser. Right-click the file and select **Download** to save it to your laptop.
 
 ![Downloading the model from JupyterLab](../assets/download-model.png)
 
 You will upload this file to cluster storage in the next step.
 
-### 2. Upload the model artifact to storage
+### 2. Upload the model to a PVC
 
-The model artifact must be **renamed** from `mnist_model.onnx` to `model.onnx` and placed in a numbered version directory:
+OVMS expects the model file inside a **numbered version directory**. The final layout on the PVC must be:
 
 ```
-<storage-root>/
-  1/
-    model.onnx       <-- renamed from mnist_model.onnx
+mnist-model-pvc (PersistentVolumeClaim)
+  └─ 1/
+      └─ model.onnx
 ```
 
 !!! danger "File naming is strict"
@@ -44,14 +44,13 @@ The model artifact must be **renamed** from `mnist_model.onnx` to `model.onnx` a
 
     - The file is not named exactly `model.onnx`
     - There is no version directory (`1/`)
-    - The file is placed directly in the storage root without a version directory
+    - The file is placed directly at the PVC root without a version directory
 
     You may also see a harmless warning about `lost+found` if using a PVC — this can be ignored.
 
-Create a PVC and upload the model using the `oc` CLI:
+First, create the PVC:
 
 ```bash
-# Create PVC
 cat <<EOF | oc apply -n <PROJECT_NAME> -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -66,29 +65,19 @@ spec:
 EOF
 ```
 
-Upload the model using a helper pod:
+Next, create a temporary helper pod that mounts the PVC so you can copy the model onto it:
 
 ```bash
-# Create a temporary pod to write to the PVC
 cat <<EOF | oc apply -n <PROJECT_NAME> -f -
 apiVersion: v1
 kind: Pod
 metadata:
   name: model-upload
 spec:
-  initContainers:
-  - name: fix-perms
-    image: registry.access.redhat.com/ubi9/ubi:latest
-    command: ["sh", "-c", "chmod -R 777 /mnt/models && mkdir -p /mnt/models/1 && chmod 777 /mnt/models/1"]
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-    - name: model-storage
-      mountPath: /mnt/models
   containers:
   - name: upload
     image: registry.access.redhat.com/ubi9/ubi:latest
-    command: ["sleep", "3600"]
+    command: ["sh", "-c", "mkdir -p /mnt/models/1 && sleep 3600"]
     volumeMounts:
     - name: model-storage
       mountPath: /mnt/models
@@ -98,12 +87,16 @@ spec:
       claimName: mnist-model-pvc
   restartPolicy: Never
 EOF
+```
 
+Wait for the pod, copy the model, then clean up:
+
+```bash
 # Wait for the pod to be ready
 oc wait pod/model-upload -n <PROJECT_NAME> --for=condition=Ready --timeout=120s
 
-# Copy the model (renaming to model.onnx)
-oc cp mnist_model.onnx <PROJECT_NAME>/model-upload:/mnt/models/1/model.onnx -c upload
+# Copy model.onnx into the version directory on the PVC
+oc cp model.onnx <PROJECT_NAME>/model-upload:/mnt/models/1/model.onnx -c upload
 
 # Verify the file is in place
 oc exec model-upload -n <PROJECT_NAME> -c upload -- ls -la /mnt/models/1/
@@ -112,10 +105,7 @@ oc exec model-upload -n <PROJECT_NAME> -c upload -- ls -la /mnt/models/1/
 oc delete pod model-upload -n <PROJECT_NAME>
 ```
 
-!!! warning "PVC init container"
-    The init container runs as root (`runAsUser: 0`) to fix directory permissions. Without this, the upload pod cannot create directories on the PVC because the volume is initially root-owned but pods run as a random non-root UID. You may see a PodSecurity warning — this is expected and the pod will still run.
-
-!!! warning "ReadWriteOnce limitation"
+!!! warning "Delete the upload pod before deploying"
     The PVC uses `ReadWriteOnce`, which means only one pod can mount it at a time. **You must delete the upload pod before the serving pod can start.** If you see a `Multi-Attach error`, this is why.
 
 ### 3. Create the serving runtime
@@ -255,8 +245,9 @@ oc get route mnist-onnx-inference -n <PROJECT_NAME> -o jsonpath='{.spec.host}'
 - The Route exists and returns the model metadata when accessed.
 
 ## Common issues
-- **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to another pod (e.g., the upload pod or Workbench). Delete it: `oc delete pod model-upload -n <PROJECT_NAME>`.
-- **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists in the storage root.
+- **Helper pod fails with SCC error**: if the `model-upload` pod is rejected with a security context constraint error, verify you are using the pod spec from these instructions (no `runAsUser: 0` or privileged settings).
+- **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to the upload pod. Delete it first: `oc delete pod model-upload -n <PROJECT_NAME>`.
+- **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists on the PVC.
 - **`lost+found` warning in logs**: harmless — PVC formatting creates this directory. OVMS logs a warning but continues normally.
 - **Image pull errors**: the OVMS image is pulled from `registry.redhat.io` and requires valid Red Hat pull credentials on the cluster.
 - **Model not appearing in dashboard**: make sure your namespace has the label `opendatahub.io/dashboard=true`. Add it with: `oc label namespace <PROJECT_NAME> opendatahub.io/dashboard=true`.

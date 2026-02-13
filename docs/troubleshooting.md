@@ -1,7 +1,7 @@
 # Troubleshooting
 
 ## Workbench does not start
-- Confirm you selected the **default PyTorch notebook image** from the standard images list (not a custom or imported image).
+- Confirm you selected the **PyTorch | CUDA | 3.12** notebook image from the standard images list (not a custom or imported image).
 - Confirm your project has sufficient resource quota for the Workbench pod.
 
 ## Notebook missing after launch
@@ -23,8 +23,11 @@ You may see: `DeprecationWarning: You are using the legacy TorchScript-based ONN
 
 ## Model serving fails to start
 
+### Helper pod fails with SCC / security context error
+If you see an error like `pods "model-upload" is forbidden: unable to validate against any security context constraint`, the sandbox may have restrictive security policies. The helper pod does not require any special privileges — make sure you are not using an init container with `runAsUser: 0`. The pod spec in the lab instructions should work with the default `restricted` SCC.
+
 ### Pod stuck in ContainerCreating
-- **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Stop your Workbench or use S3 storage instead.
+- **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench or the upload pod). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Delete the upload pod first: `oc delete pod model-upload -n <PROJECT_NAME>`.
 - **Image pull errors**: the OVMS image is pulled from `registry.redhat.io`. Confirm the cluster has valid pull credentials.
 
 ### CrashLoopBackOff — "File not found"
@@ -40,7 +43,7 @@ Common causes:
   ```
   <storage-root>/1/model.onnx
   ```
-- **Wrong file name**: the file must be `model.onnx` (not `mnist_model.onnx` or any other name).
+- **Wrong file name**: the file must be named exactly `model.onnx`.
 - **`lost+found` warning**: you may see `Expected version directory name to be in number format. Got: lost+found` — this is harmless and can be ignored.
 
 ### InferenceService stays READY=False
