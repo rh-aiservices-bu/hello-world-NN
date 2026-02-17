@@ -1,7 +1,7 @@
 site_name: OpenShift AI 3.x Workbench → PyTorch Serving Workshop
 site_description: CPU-friendly OpenShift AI 3.x workshop showroom (Workbench training + PyTorch model serving)
-site_url: https://<GITHUB_ORG>.github.io/<REPO_NAME>/
-repo_url: https://github.com/rh-aiservices-bu/hello-world-NN 
+site_url: https://rh-aiservices-bu.github.io/hello-world-NN/
+repo_url: https://github.com/rh-aiservices-bu/hello-world-NN
 edit_uri: edit/main/docs/
 
 theme:
@@ -47,7 +47,7 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/<GITHUB_ORG>/<REPO_NAME>
+      link: https://github.com/rh-aiservices-bu/hello-world-NN
 
 extra_css:
   - stylesheets/custom.css
