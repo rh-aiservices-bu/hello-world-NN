@@ -12,7 +12,7 @@ ONNX (Open Neural Network Exchange) is a portable model format supported by the 
 !!! info "Why not serve the PyTorch `.pt` file directly?"
     We tested TorchScript (`.pt`) export with OVMS and it fails with `Could not find file for model` errors. OVMS converts all models to OpenVINO IR internally, and ONNX is the most reliable input format for this conversion. ONNX is also framework-agnostic, making it the better choice for production serving.
 
-## Quick path (attendee)
+## Quick path
 1. In Jupyter, open `mnist_sequential.ipynb`.
 
     ![Opening the notebook in JupyterLab](../assets/open-notebook.png)
