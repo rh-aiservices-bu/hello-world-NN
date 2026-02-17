@@ -37,6 +37,7 @@ nav:
       - Step 3 - Deploy with OVMS: lab/04-serve.md
       - Step 4 - Test Inference: lab/05-test.md
       - Optional - External Curl Test: lab/06-external-test.md
+      - Optional - Cleanup: lab/07-cleanup.md
   - Troubleshooting: troubleshooting.md
   - Reference:
       - Repo assets: reference/repo-assets.md
