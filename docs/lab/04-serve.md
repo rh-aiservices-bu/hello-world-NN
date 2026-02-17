@@ -174,14 +174,6 @@ Create a Route to expose the inference endpoint outside the cluster:
 oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAME>
 ```
 
-Get the Route URL:
-
-```bash
-oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}'
-```
-
-Save this URL — you'll use it to send inference requests.
-
 ### 5. Verify the deployment
 
 Check that the pod is running:
