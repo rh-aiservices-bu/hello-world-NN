@@ -1,4 +1,4 @@
-/* Red Hat branding */
+/* Red Hat branding - Header */
 .md-header {
   background-color: #ee0000 !important;
 }
@@ -7,26 +7,19 @@
   background-color: #ee0000 !important;
 }
 
-/* Active/selected navigation item - dark red */
-.md-nav__item--active > .md-nav__link,
+/* SIDEBAR NAVIGATION - Selected/Active Page (dark red) */
 .md-nav__link--active,
-.md-nav__item .md-nav__link--active {
+.md-nav__item--active > .md-nav__link {
   color: #5f0000 !important;
-  font-weight: bold;
+  font-weight: bold !important;
 }
 
-/* Sidebar navigation items - selected background */
-.md-nav__item--active {
-  background-color: rgba(95, 0, 0, 0.1) !important;
-}
-
-/* Navigation link hover - medium red */
-.md-nav__link:hover,
-.md-nav__item .md-nav__link:hover {
+/* SIDEBAR NAVIGATION - Hover (medium red) */
+.md-nav__link:hover {
   color: #a60000 !important;
 }
 
-/* Primary color for links in content */
+/* Links in content area */
 .md-typeset a {
   color: #a60000 !important;
 }
@@ -35,17 +28,7 @@
   color: #5f0000 !important;
 }
 
-/* Code copy button and other interactive elements hover */
+/* Code copy button hover */
 .md-clipboard:hover {
   color: #a60000 !important;
-}
-
-/* Tab navigation active state */
-.md-tabs__link--active {
-  color: #5f0000 !important;
-}
-
-/* Focus states */
-.md-nav__link:focus {
-  color: #5f0000 !important;
 }
