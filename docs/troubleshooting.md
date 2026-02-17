@@ -33,14 +33,14 @@ If you see an error like `pods "model-upload" is forbidden: unable to validate a
 The pod spec in the lab instructions works with the default `restricted-v2` SCC without any special security settings.
 
 ### Pod stuck in ContainerCreating
-- **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench or the upload pod). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Delete the upload pod first: `oc delete pod model-upload -n <PROJECT_NAME>`.
+- **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench or the upload pod). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Delete the upload pod first: `oc delete pod model-upload -n $PROJECT_NAME`.
 - **Image pull errors**: the OVMS image is pulled from `quay.io/modh/openvino_model_server:stable`. Confirm the cluster has network access to Quay.io.
 
 ### CrashLoopBackOff — "File not found"
 Check the OVMS pod logs:
 
 ```bash
-oc logs -l app=mnist-onnx -n <PROJECT_NAME>
+oc logs -l app=mnist-onnx -n $PROJECT_NAME
 ```
 
 Common causes:
@@ -54,12 +54,12 @@ Common causes:
 
 ### Deployment has 0 ready replicas
 ```bash
-oc get deployment mnist-onnx -n <PROJECT_NAME>
+oc get deployment mnist-onnx -n $PROJECT_NAME
 ```
 
 Check the pod status:
 ```bash
-oc get pods -l app=mnist-onnx -n <PROJECT_NAME>
+oc get pods -l app=mnist-onnx -n $PROJECT_NAME
 ```
 
 If no pods exist, verify the Deployment was created successfully. If pods are stuck, check their logs and events for errors.
@@ -70,7 +70,7 @@ If no pods exist, verify the Deployment was created successfully. If pods are st
 Verify you're using the correct service name:
 
 ```bash
-oc port-forward svc/mnist-onnx -n <PROJECT_NAME> 8888:8888
+oc port-forward svc/mnist-onnx -n $PROJECT_NAME 8888:8888
 ```
 
 ### 404 on inference endpoint
@@ -79,10 +79,10 @@ oc port-forward svc/mnist-onnx -n <PROJECT_NAME> 8888:8888
 - If the metadata endpoint returns valid JSON, the model is loaded and the issue is with your inference request format.
 
 ### Endpoint reachable inside cluster but not outside
-- Confirm a Route exists: `oc get route -n <PROJECT_NAME>`
+- Confirm a Route exists: `oc get route -n $PROJECT_NAME`
 - If no Route exists, create one:
   ```bash
-  oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAME>
+  oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n $PROJECT_NAME
   ```
 - Check if the sandbox restricts external ingress.
 

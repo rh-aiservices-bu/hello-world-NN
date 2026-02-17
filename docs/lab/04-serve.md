@@ -52,7 +52,7 @@ mnist-model-pvc (PersistentVolumeClaim)
 First, create the PVC:
 
 ```bash
-cat <<EOF | oc apply -n <PROJECT_NAME> -f -
+cat <<EOF | oc apply -n $PROJECT_NAME -f -
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -69,7 +69,7 @@ EOF
 Next, create a temporary helper pod that mounts the PVC so you can copy the model onto it:
 
 ```bash
-cat <<EOF | oc apply -n <PROJECT_NAME> -f -
+cat <<EOF | oc apply -n $PROJECT_NAME -f -
 apiVersion: v1
 kind: Pod
 metadata:
@@ -94,16 +94,16 @@ Wait for the pod, copy the model, verify, then clean up:
 
 ```bash
 # Wait for the pod to be ready
-oc wait pod/model-upload -n <PROJECT_NAME> --for=condition=Ready --timeout=120s
+oc wait pod/model-upload -n $PROJECT_NAME --for=condition=Ready --timeout=120s
 
 # Copy model.onnx into the version directory on the PVC
-oc cp model.onnx <PROJECT_NAME>/model-upload:/mnt/models/1/model.onnx -c upload
+oc cp model.onnx $PROJECT_NAME/model-upload:/mnt/models/1/model.onnx -c upload
 
 # Verify the file is in place
-oc exec model-upload -n <PROJECT_NAME> -c upload -- ls -la /mnt/models/1/
+oc exec model-upload -n $PROJECT_NAME -c upload -- ls -la /mnt/models/1/
 
 # Delete the upload pod to release the PVC
-oc delete pod model-upload -n <PROJECT_NAME>
+oc delete pod model-upload -n $PROJECT_NAME
 ```
 
 !!! warning "Delete the upload pod before deploying"
@@ -114,7 +114,7 @@ oc delete pod model-upload -n <PROJECT_NAME>
 Create a Deployment that runs OVMS with your PVC mounted:
 
 ```bash
-cat <<EOF | oc apply -n <PROJECT_NAME> -f -
+cat <<EOF | oc apply -n $PROJECT_NAME -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -171,7 +171,7 @@ This creates:
 Create a Route to expose the inference endpoint outside the cluster:
 
 ```bash
-oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAME>
+oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n $PROJECT_NAME
 ```
 
 ### 5. Verify the deployment
@@ -179,7 +179,7 @@ oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAM
 Check that the pod is running:
 
 ```bash
-oc get pods -n <PROJECT_NAME> -l app=mnist-onnx
+oc get pods -n $PROJECT_NAME -l app=mnist-onnx
 ```
 
 Expected output:
@@ -192,7 +192,7 @@ mnist-onnx-67d78c4887-xxxxx   1/1     Running   0          30s
 Check the logs to confirm the model loaded:
 
 ```bash
-oc logs -l app=mnist-onnx -n <PROJECT_NAME> | head -50
+oc logs -l app=mnist-onnx -n $PROJECT_NAME | head -50
 ```
 
 You should see output like:
@@ -211,7 +211,7 @@ STATUS CHANGE: Version 1 of model mnist-onnx status change. New status: ( "state
 Test the metadata endpoint:
 
 ```bash
-curl -k https://$(oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}')/v2/models/mnist-onnx
+curl -k https://$(oc get route mnist-onnx -n $PROJECT_NAME -o jsonpath='{.spec.host}')/v2/models/mnist-onnx
 ```
 
 Expected output:
@@ -228,8 +228,8 @@ Expected output:
 
 ## Common issues
 - **Helper pod fails with SCC error**: verify you are not using `runAsUser: 0`, `fsGroup: 0`, or any privileged settings. The pod spec in these instructions works with the default `restricted-v2` SCC.
-- **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to the upload pod. Delete it first: `oc delete pod model-upload -n <PROJECT_NAME>`.
+- **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to the upload pod. Delete it first: `oc delete pod model-upload -n $PROJECT_NAME`.
 - **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists on the PVC by re-running the upload steps.
 - **`lost+found` warning spam in logs**: harmless — OVMS logs this every second but the model still works.
 - **Image pull errors**: the OVMS image is pulled from `quay.io/modh/openvino_model_server:stable` and should be publicly accessible. If you see pull errors, check your cluster's image registry connectivity.
-- **Multi-Attach error**: the upload pod is still running. Delete it: `oc delete pod model-upload -n <PROJECT_NAME>`.
+- **Multi-Attach error**: the upload pod is still running. Delete it: `oc delete pod model-upload -n $PROJECT_NAME`.

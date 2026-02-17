@@ -27,7 +27,7 @@ The OVMS serving runtime exposes the [KServe v2 inference protocol](https://kser
     If you created a Route in the previous step:
 
     ```bash
-    export MODEL_URL="https://$(oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}')"
+    export MODEL_URL="https://$(oc get route mnist-onnx -n $PROJECT_NAME -o jsonpath='{.spec.host}')"
     ```
 
 === "Port-forward (no Route)"
@@ -35,7 +35,7 @@ The OVMS serving runtime exposes the [KServe v2 inference protocol](https://kser
     If no Route is available, use port-forwarding:
 
     ```bash
-    oc port-forward svc/mnist-onnx -n <PROJECT_NAME> 8888:8888
+    oc port-forward svc/mnist-onnx -n $PROJECT_NAME 8888:8888
     ```
 
     Then in a second terminal:
@@ -150,6 +150,7 @@ import random
 rands = random.randint(0, len(test_dataset)-1)
 
 # Use the service URL (port 8888 inside the cluster)
+# Replace <PROJECT_NAME> with your actual project name
 url = "http://mnist-onnx.<PROJECT_NAME>.svc.cluster.local:8888/v2/models/mnist-onnx/infer"
 
 # Pick a test image from the dataset

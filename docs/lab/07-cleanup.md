@@ -16,20 +16,20 @@ Remove the workshop resources from your OpenShift project in case you want to ex
 Delete the deployment and service:
 
 ```bash
-oc delete deployment mnist-onnx -n <PROJECT_NAME>
-oc delete service mnist-onnx -n <PROJECT_NAME>
+oc delete deployment mnist-onnx -n $PROJECT_NAME
+oc delete service mnist-onnx -n $PROJECT_NAME
 ```
 
 ### 2. Delete the route
 
 ```bash
-oc delete route mnist-onnx -n <PROJECT_NAME>
+oc delete route mnist-onnx -n $PROJECT_NAME
 ```
 
 ### 3. Delete the model storage PVC
 
 ```bash
-oc delete pvc mnist-model-pvc -n <PROJECT_NAME>
+oc delete pvc mnist-model-pvc -n $PROJECT_NAME
 ```
 
 ### 4. (Optional) Delete the Workbench
@@ -46,7 +46,7 @@ If you want to remove the Workbench as well:
 **Via CLI:**
 
 ```bash
-oc delete notebook mnist-workbench -n <PROJECT_NAME>
+oc delete notebook mnist-workbench -n $PROJECT_NAME
 ```
 
 !!! warning "This deletes your work"
@@ -57,7 +57,7 @@ oc delete notebook mnist-workbench -n <PROJECT_NAME>
 Check that resources are deleted:
 
 ```bash
-oc get deployment,service,route,pvc -n <PROJECT_NAME>
+oc get deployment,service,route,pvc -n $PROJECT_NAME
 ```
 
 You should no longer see `mnist-onnx` resources listed.

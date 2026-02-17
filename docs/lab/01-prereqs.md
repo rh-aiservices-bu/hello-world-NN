@@ -33,6 +33,65 @@ You need to authenticate the `oc` CLI with your cluster. To get your login token
 !!! note "Token expiration"
     Login tokens expire after a period of inactivity. If you see `error: the server has asked for the client to provide credentials`, repeat the steps above to get a fresh token.
 
+## Set your project name as an environment variable
+
+To avoid typing your project name repeatedly in every command, set it as an environment variable:
+
+=== "Mac/Linux"
+
+    ```bash
+    export PROJECT_NAME=your-project-name
+    ```
+
+    For example:
+    ```bash
+    export PROJECT_NAME=rh-ee-sbowerma-dev
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $env:PROJECT_NAME = "your-project-name"
+    ```
+
+    For example:
+    ```powershell
+    $env:PROJECT_NAME = "rh-ee-sbowerma-dev"
+    ```
+
+=== "Windows CMD"
+
+    ```cmd
+    set PROJECT_NAME=your-project-name
+    ```
+
+    For example:
+    ```cmd
+    set PROJECT_NAME=rh-ee-sbowerma-dev
+    ```
+
+Verify it's set correctly:
+
+=== "Mac/Linux"
+
+    ```bash
+    echo $PROJECT_NAME
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    echo $env:PROJECT_NAME
+    ```
+
+=== "Windows CMD"
+
+    ```cmd
+    echo %PROJECT_NAME%
+    ```
+
+You should see your project name printed. Now you can use `$PROJECT_NAME` in all commands throughout the workshop.
+
 ## Values you will need (fill these in)
 Create a sticky note with these items:
 
