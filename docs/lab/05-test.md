@@ -68,9 +68,12 @@ This tells you: the model expects a `float32` tensor of shape `[batch, 1, 28, 28
 
 ## 3. Send a test inference request
 
-Create a file called `payload.json`. Here's a minimal example — a vertical line that the model should recognize as the digit **1**:
+Send a test request with a simple vertical line image (which should be recognized as digit **1**):
 
-```json
+```bash
+curl -sk -X POST "$MODEL_URL/v2/models/mnist-onnx/infer" \
+  -H "Content-Type: application/json" \
+  -d @- <<'EOF'
 {
   "inputs": [{
     "name": "input",
@@ -106,14 +109,7 @@ Create a file called `payload.json`. Here's a minimal example — a vertical lin
              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   }]
 }
-```
-
-Send the request:
-
-```bash
-curl -sk -X POST "$MODEL_URL/v2/models/mnist-onnx/infer" \
-  -H "Content-Type: application/json" \
-  -d @payload.json
+EOF
 ```
 
 ## 4. Interpret the response
