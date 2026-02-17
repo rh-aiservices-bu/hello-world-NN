@@ -32,24 +32,15 @@ If you see an error like `pods "model-upload" is forbidden: unable to validate a
 
 The pod spec in the lab instructions works with the default `restricted-v2` SCC without any special security settings.
 
-### Template processing forbidden
-If `oc process kserve-ovms -n redhat-ods-applications` fails with a permissions error, use the local processing workaround:
-
-```bash
-oc get template kserve-ovms -n redhat-ods-applications -o yaml | \
-  oc process -f - --local | \
-  oc apply -n <PROJECT_NAME> -f -
-```
-
 ### Pod stuck in ContainerCreating
 - **Multi-Attach error**: the PVC is still attached to another pod (e.g., your Workbench or the upload pod). PVCs with `ReadWriteOnce` can only be mounted by one pod at a time. Delete the upload pod first: `oc delete pod model-upload -n <PROJECT_NAME>`.
-- **Image pull errors**: the OVMS image is pulled from `registry.redhat.io`. Confirm the cluster has valid pull credentials.
+- **Image pull errors**: the OVMS image is pulled from `quay.io/modh/openvino_model_server:stable`. Confirm the cluster has network access to Quay.io.
 
 ### CrashLoopBackOff — "File not found"
 Check the OVMS pod logs:
 
 ```bash
-oc logs -l serving.kserve.io/inferenceservice=mnist-onnx -n <PROJECT_NAME>
+oc logs -l app=mnist-onnx -n <PROJECT_NAME>
 ```
 
 Common causes:
@@ -59,41 +50,43 @@ Common causes:
   <storage-root>/1/model.onnx
   ```
 - **Wrong file name**: the file must be named exactly `model.onnx`.
-- **`lost+found` warning**: you may see `Expected version directory name to be in number format. Got: lost+found` — this is harmless and can be ignored.
+- **`lost+found` warning**: you may see `Expected version directory name to be in number format. Got: lost+found` repeated every second in the logs. This is harmless and can be ignored — the model will still load and serve correctly.
 
-### InferenceService stays READY=False
+### Deployment has 0 ready replicas
 ```bash
-oc get inferenceservice mnist-onnx -n <PROJECT_NAME> -o yaml
+oc get deployment mnist-onnx -n <PROJECT_NAME>
 ```
 
-Check the `status.conditions` for error messages. Common issues:
-- Serving runtime `kserve-ovms` doesn't exist in the namespace — create it from the template first.
-- Storage URI is incorrect — verify the PVC name or S3 bucket path.
+Check the pod status:
+```bash
+oc get pods -l app=mnist-onnx -n <PROJECT_NAME>
+```
+
+If no pods exist, verify the Deployment was created successfully. If pods are stuck, check their logs and events for errors.
 
 ## Inference endpoint issues
 
 ### Connection refused on port-forward
-The predictor service is headless (ClusterIP: None). Use the metrics service instead:
+Verify you're using the correct service name:
 
 ```bash
-oc port-forward svc/mnist-onnx-metrics -n <PROJECT_NAME> 8888:8888
+oc port-forward svc/mnist-onnx -n <PROJECT_NAME> 8888:8888
 ```
 
 ### 404 on inference endpoint
 - Verify the model name in the URL matches: `/v2/models/mnist-onnx/infer`
-- Check model metadata first: `curl http://localhost:8888/v2/models/mnist-onnx`
+- Check model metadata first: `curl -k https://<ROUTE_URL>/v2/models/mnist-onnx`
+- If the metadata endpoint returns valid JSON, the model is loaded and the issue is with your inference request format.
 
 ### Endpoint reachable inside cluster but not outside
 - Confirm a Route exists: `oc get route -n <PROJECT_NAME>`
 - If no Route exists, create one:
   ```bash
-  oc expose svc/mnist-onnx-metrics -n <PROJECT_NAME> --port=8888
-  ```
-  Or for TLS:
-  ```bash
-  oc create route edge mnist-onnx-inference \
-    --service=mnist-onnx-metrics \
-    --port=8888 \
-    -n <PROJECT_NAME>
+  oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAME>
   ```
 - Check if the sandbox restricts external ingress.
+
+### Inference returns incorrect predictions
+- Verify input data is preprocessed correctly (normalized, correct shape).
+- Test with the provided `payload.json` example first — it should predict digit "1".
+- Check that the model file on the PVC matches the one you exported from the notebook.

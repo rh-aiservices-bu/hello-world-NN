@@ -11,9 +11,6 @@ For a **MNIST classifier served via OVMS**, the playground will not work. Use th
 - `curl` to the v2 REST endpoint
 - A small Python client in the notebook
 
-![Locating the inference endpoint URL in the OpenShift AI UI](../assets/placeholder-inference-endpoint-url.png)
-<!-- TODO (workshop author): Replace with a screenshot showing where to find the model's inference endpoint URL in the dashboard -->
-
 ## API details
 
 The OVMS serving runtime exposes the [KServe v2 inference protocol](https://kserve.github.io/website/latest/modelserving/data_plane/v2_protocol/) on **port 8888**:
@@ -30,15 +27,15 @@ The OVMS serving runtime exposes the [KServe v2 inference protocol](https://kser
     If you created a Route in the previous step:
 
     ```bash
-    export MODEL_URL="https://$(oc get route mnist-onnx-inference -n <PROJECT_NAME> -o jsonpath='{.spec.host}')"
+    export MODEL_URL="https://$(oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}')"
     ```
 
 === "Port-forward (no Route)"
 
-    If no Route is available, use port-forwarding. **Use the metrics service, not the predictor service:**
+    If no Route is available, use port-forwarding:
 
     ```bash
-    oc port-forward svc/mnist-onnx-metrics -n <PROJECT_NAME> 8888:8888
+    oc port-forward svc/mnist-onnx -n <PROJECT_NAME> 8888:8888
     ```
 
     Then in a second terminal:
@@ -46,9 +43,6 @@ The OVMS serving runtime exposes the [KServe v2 inference protocol](https://kser
     ```bash
     export MODEL_URL="http://localhost:8888"
     ```
-
-    !!! warning
-        Do **not** port-forward to `svc/mnist-onnx-predictor` — it is a headless service and port-forwarding to it will fail with `connection refused`.
 
 ## 2. Check model metadata
 
@@ -155,8 +149,8 @@ You can also test from within the Workbench by adding a cell to the notebook:
 import requests
 import numpy as np
 
-# Use the metrics service URL (port 8888 inside the cluster)
-url = "http://mnist-onnx-metrics.<PROJECT_NAME>.svc.cluster.local:8888/v2/models/mnist-onnx/infer"
+# Use the service URL (port 8888 inside the cluster)
+url = "http://mnist-onnx.<PROJECT_NAME>.svc.cluster.local:8888/v2/models/mnist-onnx/infer"
 
 # Pick a test image from the dataset
 image, true_label = test_dataset[0]
@@ -175,13 +169,7 @@ predicted = np.argmax(logits)
 print(f"True: {true_label}, Predicted: {predicted}, Correct: {true_label == predicted}")
 ```
 
-!!! note "Service URL in the Python client"
-    Use the **metrics service** URL (`mnist-onnx-metrics`) on port **8888** from within the cluster. The predictor service is headless and may not resolve reliably from all pods.
-
 ## Success criteria
 - HTTP 200 responses with valid JSON output.
 - The predicted digit matches the input image.
 - Predictions are stable across repeated calls for the same input.
-
-![Successful inference response](../assets/placeholder-successful-inference.png)
-<!-- TODO (workshop author): Replace with a screenshot or terminal output showing a successful prediction response -->

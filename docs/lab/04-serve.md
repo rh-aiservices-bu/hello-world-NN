@@ -1,25 +1,26 @@
-# Step 3 — Deploy to OpenShift AI model serving
+# Step 3 — Deploy to model serving
 
 ## Goal
-Upload your trained MNIST model to cluster storage, then deploy it through the **OpenShift AI dashboard** using the **OpenVINO Model Server (OVMS)** runtime.
+Upload your trained MNIST model to cluster storage and deploy it using the **OpenVINO Model Server (OVMS)** runtime.
 
 ## Mental model
 ```text
 model.onnx (exported by the notebook)
-  └─> Upload to PVC under 1/model.onnx via oc CLI
-        └─> Deploy model through the OpenShift AI dashboard
-              └─> OVMS runtime loads the model via KServe
-                    └─> Two services are created:
-                          ├─> mnist-onnx-predictor (port 80 → 8888)
-                          └─> mnist-onnx-metrics   (port 8888)
-                                └─> Route exposes port 8888 externally
+  └─> Download to your laptop
+        └─> Upload to PVC under 1/model.onnx via oc CLI
+              └─> Deploy OVMS Deployment with PVC mounted
+                    └─> OVMS loads model and exposes v2 API on port 8888
+                          └─> Route exposes the endpoint externally
 ```
 
-- Your **ONNX model artifact** needs to be in a location the serving runtime can access (PVC or S3-compatible object storage).
-- The **OVMS serving runtime** loads the model and exposes a **v2 inference API** on port **8888**.
-- KServe creates **two services**: a predictor service and a metrics service. Use the **metrics service** for Routes and port-forwarding.
+- Your **ONNX model artifact** lives on a PVC in the versioned directory structure OVMS expects: `1/model.onnx`
+- The **OVMS serving runtime** loads the model and exposes a **v2 inference API** on port **8888**
+- A **Route** makes the API accessible from outside the cluster
 
-## Procedure (attendee)
+!!! info "Why not use the OpenShift AI dashboard?"
+    The OpenShift AI dashboard UI expects S3-compatible storage (like AWS S3 or MinIO) for model deployment. In sandbox environments without S3 access, the simpler approach is to deploy OVMS directly as a standard Deployment using a PVC. This gives you the same inference capabilities without the extra complexity.
+
+## Procedure
 
 ### 1. Download the model from the Workbench
 
@@ -89,7 +90,7 @@ spec:
 EOF
 ```
 
-Wait for the pod, copy the model, then clean up:
+Wait for the pod, copy the model, verify, then clean up:
 
 ```bash
 # Wait for the pod to be ready
@@ -108,143 +109,135 @@ oc delete pod model-upload -n <PROJECT_NAME>
 !!! warning "Delete the upload pod before deploying"
     The PVC uses `ReadWriteOnce`, which means only one pod can mount it at a time. **You must delete the upload pod before the serving pod can start.** If you see a `Multi-Attach error`, this is why.
 
-### 3. Create the serving runtime
+### 3. Deploy the model serving runtime
 
-Before you can deploy the model through the dashboard, you need an OVMS serving runtime in your project. Create it from the cluster template:
+Create a Deployment that runs OVMS with your PVC mounted:
 
 ```bash
-oc get template kserve-ovms -n redhat-ods-applications -o yaml | \
-  oc process -f - --local | \
-  oc apply -n <PROJECT_NAME> -f -
+cat <<EOF | oc apply -n <PROJECT_NAME> -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mnist-onnx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mnist-onnx
+  template:
+    metadata:
+      labels:
+        app: mnist-onnx
+    spec:
+      containers:
+      - name: ovms
+        image: quay.io/modh/openvino_model_server:stable
+        args:
+        - --model_name=mnist-onnx
+        - --model_path=/mnt/models
+        - --port=8001
+        - --rest_port=8888
+        ports:
+        - containerPort: 8888
+          name: http
+        volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/models
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: mnist-model-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mnist-onnx
+spec:
+  selector:
+    app: mnist-onnx
+  ports:
+  - port: 8888
+    targetPort: 8888
+    name: http
+EOF
 ```
 
-!!! note "Why the extra step?"
-    In sandbox environments, you may not have permission to process templates directly in the `redhat-ods-applications` namespace. The command above exports the template locally first, then processes it with `--local` to avoid that permission issue.
+This creates:
+- A **Deployment** with 1 replica running OVMS
+- A **Service** exposing port 8888
 
-Verify it was created:
+### 4. Create an external Route
+
+Create a Route to expose the inference endpoint outside the cluster:
 
 ```bash
-oc get servingruntime -n <PROJECT_NAME>
+oc create route edge mnist-onnx --service=mnist-onnx --port=8888 -n <PROJECT_NAME>
+```
+
+Get the Route URL:
+
+```bash
+oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}'
+```
+
+Save this URL — you'll use it to send inference requests.
+
+### 5. Verify the deployment
+
+Check that the pod is running:
+
+```bash
+oc get pods -n <PROJECT_NAME> -l app=mnist-onnx
 ```
 
 Expected output:
 
 ```
-NAME          AGE
-kserve-ovms   5s
+NAME                          READY   STATUS    RESTARTS   AGE
+mnist-onnx-67d78c4887-xxxxx   1/1     Running   0          30s
 ```
 
-### 4. Deploy the model through the OpenShift AI dashboard
-
-Now use the dashboard UI to deploy the model.
-
-1. Open the **OpenShift AI dashboard** in your browser. You can find the URL from the OpenShift console's application launcher (grid icon in the top-right), or ask your workshop staff for the link.
-
-    ![OpenShift AI dashboard link in the application launcher](../assets/dashboard-launcher.png)
-
-2. In the left menu, click **Data Science Projects**. Find and click your project name (`<PROJECT_NAME>`).
-
-    ![Selecting your Data Science Project](../assets/select-ds-project.png)
-
-3. Click the **Models** tab. You should see the single-model serving platform available. Click **Deploy model**.
-
-    ![Models tab with Deploy model button](../assets/placeholder-models-tab-deploy.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the Models tab showing the Deploy model button -->
-
-4. Fill in the deployment form:
-
-    | Field | Value |
-    |-------|-------|
-    | **Model deployment name** | `mnist-onnx` |
-    | **Model type** | Predictive AI |
-    | **Serving runtime** | OpenVINO Model Server |
-    | **Model framework** | onnx - 1 |
-    | **Deployment mode** | Standard (RawDeployment) |
-    | **Model location** | Cluster storage — select `mnist-model-pvc` |
-    | **Model route** | Check the box to make the model available externally |
-
-    ![Deploy model form filled in](../assets/placeholder-deploy-model-form.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the deploy model form with all fields filled in as described above -->
-
-    !!! info "Model location"
-        Select **Cluster storage** from the model location dropdown. Choose the `mnist-model-pvc` PVC you created in step 2. The model path should point to the root of the PVC (the version directory `1/model.onnx` is already in the correct layout).
-
-    !!! note "Model route"
-        Checking the **Make deployed models available through an external route** option creates a Route automatically so you can access the inference endpoint from outside the cluster. If this option is not available, you can create the Route manually (see step 6 below).
-
-5. Click **Deploy**. The dashboard will create the InferenceService and begin deploying the model.
-
-### 5. Verify the deployment in the dashboard
-
-After clicking Deploy, the dashboard shows the model's deployment status.
-
-1. On the **Models** tab, watch for the status to change to a green checkmark indicating the model is **Loaded** and ready.
-
-    ![Model deployment showing Ready status](../assets/placeholder-deployment-ready.png)
-    <!-- TODO (workshop author): Replace with a screenshot of the model deployment list showing a green/ready status -->
-
-2. You can also verify from the CLI:
-
-    ```bash
-    oc get inferenceservice mnist-onnx -n <PROJECT_NAME>
-    ```
-
-    Expected output:
-
-    ```
-    NAME         URL                                                                READY
-    mnist-onnx   http://mnist-onnx-predictor.<PROJECT_NAME>.svc.cluster.local       True
-    ```
-
-3. Check the serving pod logs to confirm the model loaded:
-
-    ```bash
-    oc logs -l serving.kserve.io/inferenceservice=mnist-onnx -n <PROJECT_NAME> --tail=10
-    ```
-
-    You should see output like:
-
-    ```
-    Loading model: mnist-onnx, version: 1, from path: /mnt/models/1, with target device: CPU ...
-    Input name: input; mapping_name: input; shape: (-1,1,28,28); precision: FP32; layout: N...
-    Output name: output; mapping_name: output; shape: (-1,10); precision: FP32; layout: N...
-    Loaded model mnist-onnx; version: 1; batch size: -1; No of InferRequests: 1
-    STATUS CHANGE: Version 1 of model mnist-onnx status change. New status: ( "state": "AVAILABLE", "error_code": "OK" )
-    ```
-
-### 6. Create an external Route (if needed)
-
-If you checked the **model route** option in the deploy form, a Route was created automatically — skip to the next step.
-
-If no Route was created, create one manually. Target the **metrics service** (not the predictor service):
+Check the logs to confirm the model loaded:
 
 ```bash
-oc create route edge mnist-onnx-inference \
-  --service=mnist-onnx-metrics \
-  --port=8888 \
-  -n <PROJECT_NAME>
+oc logs -l app=mnist-onnx -n <PROJECT_NAME> | head -50
 ```
 
-!!! info "Why `mnist-onnx-metrics`?"
-    KServe creates two services. The **metrics service** exposes port **8888** directly (the OVMS REST API port) and is the most reliable target for Routes and port-forwarding across different cluster configurations.
+You should see output like:
 
-Get the Route URL:
+```
+Loading model: mnist-onnx, version: 1, from path: /mnt/models/1, with target device: CPU ...
+Input name: input; mapping_name: input; shape: (-1,1,28,28); precision: FP32; layout: N...
+Output name: output; mapping_name: output; shape: (-1,10); precision: FP32; layout: N...
+Loaded model mnist-onnx; version: 1; batch size: -1; No of InferRequests: 1
+STATUS CHANGE: Version 1 of model mnist-onnx status change. New status: ( "state": "AVAILABLE", "error_code": "OK" )
+```
+
+!!! note "`lost+found` warnings"
+    You'll see recurring warnings about `lost+found` in the logs. This is harmless — PVC formatting creates this directory, and OVMS logs a warning every time it scans for model versions. The model still loads and serves correctly.
+
+Test the metadata endpoint:
 
 ```bash
-oc get route mnist-onnx-inference -n <PROJECT_NAME> -o jsonpath='{.spec.host}'
+curl -k https://$(oc get route mnist-onnx -n <PROJECT_NAME> -o jsonpath='{.spec.host}')/v2/models/mnist-onnx
+```
+
+Expected output:
+
+```json
+{"name":"mnist-onnx","versions":["1"],"platform":"OpenVINO","inputs":[{"name":"input","datatype":"FP32","shape":[-1,1,28,28]}],"outputs":[{"name":"output","datatype":"FP32","shape":[-1,10]}]}
 ```
 
 ## What "success" looks like
-- The dashboard shows the model as **Loaded** with a green status.
-- The InferenceService shows `READY=True` in the CLI.
-- The serving pod is `Running` with **no restarts**.
-- Logs confirm the model loaded as `AVAILABLE` and show the correct input/output shapes.
-- The Route exists and returns the model metadata when accessed.
+- The pod shows `Running` with `READY 1/1`
+- Logs show `STATUS CHANGE: ... "state": "AVAILABLE"`
+- The metadata endpoint returns JSON with model input/output shapes
+- No CrashLoopBackOff or image pull errors
 
 ## Common issues
-- **Helper pod fails with SCC error**: if the `model-upload` pod is rejected with a security context constraint error, verify you are not using `runAsUser: 0`, `fsGroup: 0`, or any privileged settings. The pod spec in these instructions works with the default `restricted-v2` SCC.
+- **Helper pod fails with SCC error**: verify you are not using `runAsUser: 0`, `fsGroup: 0`, or any privileged settings. The pod spec in these instructions works with the default `restricted-v2` SCC.
 - **Pod stuck in `ContainerCreating`**: check if the PVC is still attached to the upload pod. Delete it first: `oc delete pod model-upload -n <PROJECT_NAME>`.
-- **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists on the PVC.
-- **`lost+found` warning in logs**: harmless — PVC formatting creates this directory. OVMS logs a warning but continues normally.
-- **Image pull errors**: the OVMS image is pulled from `registry.redhat.io` and requires valid Red Hat pull credentials on the cluster.
-- **Model not appearing in dashboard**: make sure your namespace has the label `opendatahub.io/dashboard=true`. Add it with: `oc label namespace <PROJECT_NAME> opendatahub.io/dashboard=true`.
+- **CrashLoopBackOff — "File not found"**: the directory layout is wrong. Verify `1/model.onnx` exists on the PVC by re-running the upload steps.
+- **`lost+found` warning spam in logs**: harmless — OVMS logs this every second but the model still works.
+- **Image pull errors**: the OVMS image is pulled from `quay.io/modh/openvino_model_server:stable` and should be publicly accessible. If you see pull errors, check your cluster's image registry connectivity.
+- **Multi-Attach error**: the upload pod is still running. Delete it: `oc delete pod model-upload -n <PROJECT_NAME>`.
