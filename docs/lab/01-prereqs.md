@@ -28,7 +28,7 @@ You need to authenticate the `oc` CLI with your cluster. To get your login token
     oc login --token=sha256~XXXXX --server=https://api.<CLUSTER_DOMAIN>:443
     ```
 
-5. Paste and run it in your terminal.
+5. Paste and run it in your terminal. We'll use this later!
 
 !!! note "Token expiration"
     Login tokens expire after a period of inactivity. If you see `error: the server has asked for the client to provide credentials`, repeat the steps above to get a fresh token.
