@@ -6,7 +6,7 @@ Start a Jupyter Workbench using the **default PyTorch notebook image** provided 
 ## Why the default image?
 OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) that are ready to use. This avoids the need to build or import a custom image, which would require RBAC permissions most sandbox users do not have.
 
-## Procedure (attendee)
+## Procedure
 1. In **OpenShift AI**, select your project.
 
     ![Selecting a project in OpenShift AI](../assets/select-project.png)
@@ -29,7 +29,7 @@ OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) 
 
 5. For container size, the defaults are fine. The model is small (109K parameters) and trains comfortably on CPU.
 
-6. Start the Workbench and open Jupyter.
+6. Start the Workbench and open Jupyter. This may take a minute or so to spin up as the pod is created and the image is pulled.
 
 7. In JupyterLab, clone the workshop repo using the GUI:
     - Click **Git → Clone a Repository** from the top menu bar.
