@@ -6,6 +6,7 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: assets/redhat.svg
   features:
     - navigation.sections
     - navigation.instant
@@ -45,3 +46,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/<GITHUB_ORG>/<REPO_NAME>
+
+extra_css:
+  - stylesheets/custom.css
