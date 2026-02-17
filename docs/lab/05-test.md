@@ -144,12 +144,16 @@ You can also test from within the Workbench by adding a cell to the notebook:
 ```python
 import requests
 import numpy as np
+import random
+
+# Get random digit selection to send to model
+rands = random.randint(0, len(test_dataset)-1)
 
 # Use the service URL (port 8888 inside the cluster)
 url = "http://mnist-onnx.<PROJECT_NAME>.svc.cluster.local:8888/v2/models/mnist-onnx/infer"
 
 # Pick a test image from the dataset
-image, true_label = test_dataset[0]
+image, true_label = test_dataset[rands]
 payload = {
     "inputs": [{
         "name": "input",
