@@ -6,3 +6,29 @@
 .md-tabs {
   background-color: #ee0000 !important;
 }
+
+/* Active/selected navigation item */
+.md-nav__item--active > .md-nav__link {
+  color: #5f0000 !important;
+}
+
+/* Navigation link hover */
+.md-nav__link:hover {
+  color: #a60000 !important;
+}
+
+/* Primary color for links */
+.md-typeset a {
+  color: #a60000 !important;
+}
+
+/* Current/active page in navigation */
+.md-nav__link--active {
+  color: #5f0000 !important;
+  font-weight: bold;
+}
+
+/* Code copy button and other interactive elements hover */
+.md-clipboard:hover {
+  color: #a60000 !important;
+}
