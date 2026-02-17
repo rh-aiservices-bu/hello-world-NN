@@ -1,14 +1,14 @@
 # Prerequisites
 
 ## Accounts and access
-- Access to an **OpenShift AI 3.x** environment ([Red Hat Developer Sandbox](https://developers.redhat.com/developer-sandbox)).
+- Access to an **OpenShift AI 3.x** environment (<a href="https://developers.redhat.com/developer-sandbox" target="_blank">Red Hat Developer Sandbox</a>).
 - Permission to **create a Workbench** and **deploy a model** in your assigned project.
 - **Outbound internet access** from the Workbench (needed to clone the repo and download MNIST data).
 
 ![OpenShift AI dashboard landing page](../assets/oai-dashboard.png)
 
 ## Tools
-- **[`oc` CLI](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/cli_tools/openshift-cli-oc)** — logged in to the cluster. You will use `oc` to upload the model to storage, create the serving runtime, and (optionally) create a Route.
+- **<a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/cli_tools/openshift-cli-oc" target="_blank">`oc` CLI</a>** — logged in to the cluster. You will use `oc` to upload the model to storage, create the serving runtime, and (optionally) create a Route.
 - **OpenShift AI dashboard** — used to deploy the model to the serving platform.
 - **`curl`** — only needed for the optional external test step.
 
