@@ -1,14 +1,14 @@
 # Prerequisites
 
 ## Accounts and access
-- Access to an **OpenShift AI 3.x** environment (sandbox).
+- Access to an **OpenShift AI 3.x** environment ([Red Hat Developer Sandbox](https://developers.redhat.com/developer-sandbox)).
 - Permission to **create a Workbench** and **deploy a model** in your assigned project.
 - **Outbound internet access** from the Workbench (needed to clone the repo and download MNIST data).
 
 ![OpenShift AI dashboard landing page](../assets/oai-dashboard.png)
 
 ## Tools
-- **`oc` CLI** — logged in to the cluster. You will use `oc` to upload the model to storage, create the serving runtime, and (optionally) create a Route.
+- **[`oc` CLI](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/cli_tools/openshift-cli-oc)** — logged in to the cluster. You will use `oc` to upload the model to storage, create the serving runtime, and (optionally) create a Route.
 - **OpenShift AI dashboard** — used to deploy the model to the serving platform.
 - **`curl`** — only needed for the optional external test step.
 
@@ -17,6 +17,9 @@
 You need to authenticate the `oc` CLI with your cluster. To get your login token:
 
 1. Open the **OpenShift console** in your browser.
+
+    ![Finding the Copy login command in the OpenShift console](../assets/copy-login-command.png)
+
 2. Click your username in the top-right corner and select **Copy login command**.
 3. Click **Display Token** on the page that opens.
 4. Copy the `oc login` command — it looks like this:
