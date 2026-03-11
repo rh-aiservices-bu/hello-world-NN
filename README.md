@@ -1,22 +1,14 @@
-# OpenShift AI 3.x Workbench → PyTorch Serving Workshop (Showroom)
+# OpenShift AI 3.x MNIST Workshop
 
-This repository is the **documentation/showroom** for a CPU-friendly OpenShift AI 3.x workshop.
+This repository contains a hands-on workshop for training and deploying a simple neural network on Red Hat OpenShift AI 3.x. You'll train an MNIST digit classifier using PyTorch in a Workbench, export it to ONNX format, and deploy it using the OpenVINO Model Server runtime.
 
-## What's in here
-- `docs/` + `mkdocs.yml`: GitHub Pages site (MkDocs Material)
-- `mnist_sequential.ipynb` + `img/`: training notebook and assets (attendees clone this repo via the JupyterLab Git UI)
-- `Containerfile`: reference only (not used in the lab — attendees use the default PyTorch notebook image)
-- `openshift/`: reference OpenShift build manifests (not used in the lab)
+## Workshop Resources
 
-## Local preview
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-mkdocs serve
-```
+**Interactive Lab Guide**: [https://red.ht/46brXNg](https://red.ht/46brXNg)
 
-## Publish
-Push to `main`. GitHub Actions publishes to GitHub Pages.
+**AI Coding Summit Workshop Stream**: [https://red.ht/4s52KwM](https://red.ht/4s52KwM)
 
-> Repo settings: Settings → Pages → Source: **GitHub Actions**.
+## What's Included
+- Training notebook (`mnist_sequential.ipynb`) and sample images
+- Complete documentation site built with MkDocs Material
+- Step-by-step lab instructions for OpenShift AI 3.x
