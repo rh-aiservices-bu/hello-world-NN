@@ -103,6 +103,8 @@ Wait for the pod, copy the model, verify, then clean up:
 oc wait pod/model-upload -n $PROJECT_NAME --for=condition=Ready --timeout=120s
 
 # Copy model.onnx into the version directory on the PVC
+# Note: Make sure you are in the directory where model.onnx is located (e.g., ~/Downloads)
+# or provide the full path to the file
 oc cp model.onnx $PROJECT_NAME/model-upload:/mnt/models/1/model.onnx -c upload
 
 # Verify the file is in place
