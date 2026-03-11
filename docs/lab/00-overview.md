@@ -30,3 +30,6 @@ Default PyTorch notebook image + cloned repo
 
 !!! info "Key detail: directory structure"
     The notebook exports the model as `model.onnx`. OVMS expects this file inside a **numbered version directory** (`1/model.onnx`) on the PVC. The upload step handles placing it in the correct location.
+
+## Separation of concerns
+AI projects require different skills and engineers. OpenShift AI supports this by providing **workbenches** for data scientists to experiment and train models, **model serving** for ops teams to deploy and serve models in production, and **easy REST endpoints** for developers to integrate AI capabilities into their applications running on OpenShift. Each team works with the tools they know best, while the platform handles the integration between them.
