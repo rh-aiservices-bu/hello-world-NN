@@ -22,6 +22,12 @@ model.onnx (exported by the notebook)
 
 ## Procedure
 
+!!! tip "Using the oc commands"
+    All the `oc` commands in this step can be copied directly into your terminal. Just make sure to replace `$PROJECT_NAME` with your actual project name (e.g., `myuser-dev`), or set it as an environment variable first:
+    ```bash
+    export PROJECT_NAME=your-project-name
+    ```
+
 ### 1. Download the model from the Workbench
 
 In JupyterLab, locate the `model.onnx` file in the file browser. Right-click the file and select **Download** to save it to your laptop.

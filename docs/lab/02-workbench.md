@@ -1,7 +1,8 @@
 # Step 1 — Launch the Workbench (default PyTorch image)
 
 ## Goal
-Start a Jupyter Workbench using the **default PyTorch notebook image** provided by OpenShift AI, then clone this workshop repository to get the notebook and assets.
+- Start a Jupyter Workbench using the **default PyTorch notebook image** provided by OpenShift AI
+- Clone this workshop repository to get the notebook and assets
 
 ## Why the default image?
 OpenShift AI 3.x ships with curated notebook images (including a PyTorch image) that are ready to use. This avoids the need to build or import a custom image, which would require RBAC permissions most sandbox users do not have.
