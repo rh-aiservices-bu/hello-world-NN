@@ -15,6 +15,8 @@ This site walks you through a CPU-friendly lab in a **Red Hat OpenShift AI 3.x s
 ## What you’ll build
 A simple digit classifier trained on MNIST. It’s small enough to train on CPU in a workshop setting.
 
+Beyond the technical deliverable, you’ll gain hands-on experience with **neural networks**, **model serving runtimes**, and the **end-to-end ML workflow** — skills that directly build your professional capabilities as a data scientist, ML engineer, or developer working with AI systems.
+
 ![Sample MNIST digits](assets/firsteightimages.jpg)
 
 ## Lab navigation
