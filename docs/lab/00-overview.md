@@ -10,6 +10,7 @@ You will train a simple **image classifier** (MNIST digits) inside an OpenShift 
 
 ## What you will need
 - A project/namespace in OpenShift AI
+    - Note: The free OpenShift Dev sandbox includes this for you
 - Outbound internet access from the Workbench (to download MNIST data and clone the repo)
 - The `oc` CLI (for uploading the model to storage and creating the serving runtime)
 - Access to the **OpenShift AI dashboard** (for deploying the model)
